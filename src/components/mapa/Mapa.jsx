@@ -1,13 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { set } from 'firebase/database';
+import { set, ref as rtdbRef, onValue } from 'firebase/database';
 import useFirebaseSync from '../../hooks/useFirebaseSync';
 import useMachineTimers from '../../hooks/useMachineTimers';
 import { supabase } from '../pruebas/client';
 import { removeUndefined } from '../../utils/Utils';
 import cpd from '../../assets/cpdblanco.png';
 import './mapa.css';
-import { dbRef } from '../../firebase/firebase-config';
-import { mainOptions, mainLabels, mainCode } from '../../config/mainOptionsConfig';
+import { dbRef, dbi } from '../../firebase/firebase-config';
+import { mainOptions, mainLabels, mainCode, mainId } from '../../config/mainOptionsConfig';
 import { secondaryOptionsMap } from '../../config/secondaryOptionsConfig';
 import { getImageBySrc } from '../../config/machineColorsConfig';
 import { getMachineReference, fetchReferencesFromSupabase } from '../../config/machineReferencesConfig';
@@ -25,6 +25,7 @@ const Mapa = () => {
   const ignoreNext = useRef(false); // Para evitar bucles de sincronización
   const [modal, setModal] = useState({ show: false, target: null, main: null });
   const [showAdminModal, setShowAdminModal] = useState(false);
+  const [askedOperarios, setAskedOperarios] = useState({});
   //const [refsLoaded, setRefsLoaded] = useState(false);
 
 
@@ -75,6 +76,37 @@ const Mapa = () => {
     const cleanImgStates = removeUndefined(imgStates);
     set(dbRef, cleanImgStates);
   }, [imgStates]);
+
+  // --- Realtime listener para operarios preguntados hoy
+  useEffect(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    const askedRef = rtdbRef(dbi, `askedOperarios/${today}`);
+    const unsubscribe = onValue(askedRef, (snapshot) => {
+      const val = snapshot.val() || {};
+      setAskedOperarios(val);
+    }, (err) => {
+      console.warn('Error listening askedOperarios:', err);
+    });
+    return () => {
+      try { unsubscribe(); } catch (e) { }
+    };
+  }, []);
+
+  // Comprueba si un operario ya fue preguntado hoy (lookup en caché)
+  const checkOperarioAsked = (nombre) => {
+    return Boolean(askedOperarios && askedOperarios[nombre]);
+  };
+
+  // Marca que un operario fue preguntado hoy (escribe en RTDB)
+  const markOperarioAsked = (nombre, turno) => {
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      const pathRef = rtdbRef(dbi, `askedOperarios/${today}/${nombre}`);
+      set(pathRef, { ts: Date.now(), turno: turno ?? null });
+    } catch (e) {
+      console.error('markOperarioAsked error', e);
+    }
+  };
 
 
 
@@ -142,13 +174,12 @@ const Mapa = () => {
         (async () => {
           try {
             await supabase.from('historial_estados').insert([{
-              maquina_id: id,
+              maquina_id: mainId[id] ?? id,
               cod: mainCode[prevState.main] ?? null,
               estadoprincipal: mainLabels[prevState.main] ?? null,
               causa: getSecondaryText(prevState.main, prevState.secondary, prevState.secondaryCustom),
-              causa_custom: prevState.secondaryCustom ?? null,
-              start_at: prevState.startedAt ? new Date(prevState.startedAt).toISOString() : null,
-              end_at: new Date(now).toISOString(),
+              start_at: prevState.startedAt ? new Date(prevState.startedAt).toISOString('es-CO', { timeZone: 'America/Bogota', dateStyle: 'full', timeStyle: 'long' }) : null,
+              end_at: new Date(now).toISOString('es-CO', { timeZone: 'America/Bogota', dateStyle: 'full', timeStyle: 'long' }),
               elapsed_seconds: elapsedSeconds,
               operador: imgStates[id].operador ?? null
             }]);
@@ -1368,6 +1399,8 @@ const Mapa = () => {
         onClose={closeModal}
         onBack={backToMainModal}
         setModal={setModal}
+        checkOperarioAsked={checkOperarioAsked}
+        markOperarioAsked={markOperarioAsked}
 
 
       />

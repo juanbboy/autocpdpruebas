@@ -10,21 +10,42 @@ const MapaModal = ({
     onClose,
     onBack,
     setModal,
+    // callbacks supplied by parent `Mapa` to persist/check across terminals (realtime)
+    checkOperarioAsked,
+    markOperarioAsked,
     listaOperarios = ["632", "609", "606", "636", "637", "615", "603", "624", "602"]
 }) => {
     if (!modal.show) return null;
 
-    // 1. Identificamos el estado ACTUAL de la máquina
+    // estado actual de la máquina
     const currentId = modal.target?.getAttribute('data-id');
     const currentVal = currentId ? imgStates[currentId] : null;
 
-    // Extraemos el "main" actual de la máquina (si no tiene, asumimos un valor por defecto o null)
+    // Extrae "main" actual de la máquina (si no tiene, asumimos un valor por defecto o null)
     const estadoActualMaquina = currentVal && typeof currentVal === 'object' ? currentVal.main : null;
 
     // 2. Evaluamos la regla de negocio: ¿Debe pedir operador obligatoriamente?
     // Si la máquina NO está en estado 4 y tampoco en estado 7, NO debe pedir operador.
     // Por el contrario, si está en 4, en 7, o es una máquina nueva (null), sí lo pide.
     const requiereOperador = estadoActualMaquina === 4 || estadoActualMaquina === 7 || estadoActualMaquina === null;
+
+    // Use callbacks passed from parent `Mapa` to check/mark operarios asked today
+    // Parent should persist this in realtime so all terminals see the same state.
+    const isOperarioAskedToday = (nombre) => {
+        if (typeof checkOperarioAsked === 'function') {
+            try { return checkOperarioAsked(nombre); } catch (e) { console.warn(e); return false; }
+        }
+        // If parent doesn't provide the callback, default to false (will ask turno)
+        console.warn('checkOperarioAsked not provided; defaulting to ask turno.');
+        return false;
+    };
+    const markOperarioAskedToday = (nombre) => {
+        if (typeof markOperarioAsked === 'function') {
+            try { return markOperarioAsked(nombre); } catch (e) { console.warn(e); }
+        } else {
+            console.warn('markOperarioAsked not provided; no cross-terminal persistence.');
+        }
+    };
 
     const getSecondaryOptions = () => {
         if (modal.main === 4 || modal.main === 7) return [];
@@ -35,31 +56,67 @@ const MapaModal = ({
     };
 
     const handleSeleccionarOperador = (nombre) => {
-        setModal(prev => ({ ...prev, operador: nombre }));
+        const alreadyAsked = isOperarioAskedToday(nombre);
+        setModal(prev => ({ ...prev, operador: nombre, askTurno: !alreadyAsked, turno: alreadyAsked ? prev.turno : null }));
+    };
+
+    const handleSeleccionarTurno = (turno) => {
+        const operador = modal && modal.operador;
+        setModal(prev => ({ ...prev, turno, askTurno: false }));
+        if (operador) {
+            markOperarioAskedToday(operador);
+        }
     };
 
     return (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
             <div style={{ background: 'white', padding: 24, borderRadius: 8, minWidth: 320, textAlign: 'center', maxHeight: '90vh', overflowY: 'auto' }}>
 
-                {/* CONDICIONAL: SI REQUIERE OPERADOR Y AÚN NO SE HA SELECCIONADO, MUESTRA LA LISTA */}
-                {requiereOperador && !modal.operador ? (
-                    <div>
-                        <div className="mb-3" style={{ fontSize: 24, fontWeight: 'bold' }}>¿Quién realiza el reporte?</div>
-                        <p style={{ color: '#666', fontSize: 16 }}>Selecciona tu nombre de la lista:</p>
-                        <div className="d-flex flex-wrap justify-content-center my-3">
-                            {listaOperarios.map((nombre) => (
-                                <button key={nombre} type="button" className="btn btn-outline-primary m-2" style={{ fontSize: 28, padding: '16px 32px', fontWeight: '500' }} onClick={() => handleSeleccionarOperador(nombre)}>
-                                    {nombre}
-                                </button>
-                            ))}
-                        </div>
+                {/* CONDICIONAL: SI REQUIERE OPERADOR Y AÚN NO SE HA SELECCIONADO, MUESTRA LA LISTA
+                    También muestra la vista para seleccionar turno si el operario fue elegido
+                    y aún no tiene turno y debe preguntarse hoy. */}
+                {requiereOperador && (!modal.operador || (modal.askTurno && !modal.turno)) ? (
+                    modal.operador && modal.askTurno && !modal.turno ? (
                         <div>
-                            <button type="button" className="btn btn-link mt-2" style={{ fontSize: 20 }} onClick={onClose}>
-                                Cancelar
-                            </button>
+                            <div className="mb-3" style={{ fontSize: 24, fontWeight: 'bold' }}>¿Cuál es tu turno?</div>
+                            <p style={{ color: '#666', fontSize: 16 }}>Selecciona el turno correspondiente:</p>
+                            <div className="d-flex flex-wrap justify-content-center my-3">
+                                {['6-2', '2-10', '10-6', "6-18", "18-6"].map(t => (
+                                    <button key={t} type="button" className="btn btn-outline-primary m-2" style={{ fontSize: 22, padding: '12px 20px' }} onClick={() => handleSeleccionarTurno(t)}>
+                                        {t}
+                                    </button>
+                                ))}
+                                <button type="button" className="btn btn-outline-secondary m-2" style={{ fontSize: 22, padding: '12px 20px' }} onClick={() => {
+                                    const custom = window.prompt('Escribe tu turno:');
+                                    if (custom && custom.trim()) handleSeleccionarTurno(custom.trim());
+                                }}>
+                                    Otro
+                                </button>
+                            </div>
+                            <div>
+                                <button type="button" className="btn btn-link mt-2" style={{ fontSize: 20 }} onClick={onClose}>
+                                    Cancelar
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    ) : (
+                        <div>
+                            <div className="mb-3" style={{ fontSize: 24, fontWeight: 'bold' }}>¿Quién realiza el reporte?</div>
+                            <p style={{ color: '#666', fontSize: 16 }}>Selecciona tu nombre de la lista:</p>
+                            <div className="d-flex flex-wrap justify-content-center my-3">
+                                {listaOperarios.map((nombre) => (
+                                    <button key={nombre} type="button" className="btn btn-outline-primary m-2" style={{ fontSize: 28, padding: '16px 32px', fontWeight: '500' }} onClick={() => handleSeleccionarOperador(nombre)}>
+                                        {nombre}
+                                    </button>
+                                ))}
+                            </div>
+                            <div>
+                                <button type="button" className="btn btn-link mt-2" style={{ fontSize: 20 }} onClick={onClose}>
+                                    Cancelar
+                                </button>
+                            </div>
+                        </div>
+                    )
                 ) : (
                     /* SI LA MÁQUINA YA ESTABA EN OTRO ESTADO (DIFERENTE A 4 O 7), PASA DIRECTO AQUÍ */
                     <div>

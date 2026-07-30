@@ -161,6 +161,8 @@ const Mapa = () => {
 
   // Maneja la selección de una opción principal en el modal
   function handleMainOption(main) {
+    console.log(new Date().toISOString('es-CO', { timeZone: 'America/Bogota', dateStyle: 'full', timeStyle: 'long' }),);
+
     if ((main === 4 || main === 7) && modal.target) {
       const id = modal.target.getAttribute('data-id');
       let src = getSrc(id);
@@ -181,7 +183,8 @@ const Mapa = () => {
               start_at: prevState.startedAt ? new Date(prevState.startedAt).toISOString('es-CO', { timeZone: 'America/Bogota', dateStyle: 'full', timeStyle: 'long' }) : null,
               end_at: new Date(now).toISOString('es-CO', { timeZone: 'America/Bogota', dateStyle: 'full', timeStyle: 'long' }),
               elapsed_seconds: elapsedSeconds,
-              operador: imgStates[id].operador ?? null
+              operador: imgStates[id].operador ?? null,
+              turno: imgStates[id].turno ?? null
             }]);
           } catch (e) {
             console.error('Supabase insert error', e);
@@ -223,9 +226,8 @@ const Mapa = () => {
           main: modal.main,
           secondaryCustom: (secondaryIdx !== undefined && getSecondaryOptions()[secondaryIdx] === "Otros") ? customText : undefined,
           startedAt: prevState.startedAt || now,
-          // productionAt: undefined,
-          // lastElapsedSeconds: prevState.lastElapsedSeconds
-          operador: modal.operador ?? prevState.operador
+          operador: modal.operador ?? prevState.operador,
+          turno: modal.turno ?? prevState.turno
         }
       };
     });

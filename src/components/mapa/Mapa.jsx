@@ -161,7 +161,7 @@ const Mapa = () => {
 
   // Maneja la selección de una opción principal en el modal
   function handleMainOption(main) {
-    console.log(new Date().toISOString('es-CO', { timeZone: 'America/Bogota', dateStyle: 'full', timeStyle: 'long' }),);
+    console.log(new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota', dateStyle: 'full', timeStyle: 'long' }),);
 
     if ((main === 4 || main === 7) && modal.target) {
       const id = modal.target.getAttribute('data-id');
@@ -175,21 +175,41 @@ const Mapa = () => {
         // Insert a record into Supabase for this machine stop
         (async () => {
           try {
-            await supabase.from('historial_estados').insert([{
-              maquina_id: mainId[id] ?? id,
-              cod: mainCode[prevState.main] ?? null,
+            await supabase.from('historial_pruebas').insert([{
+              COD_T: mainId[id] ?? id,
+              COD_O: mainCode[prevState.main] ?? null,
               estadoprincipal: mainLabels[prevState.main] ?? null,
               causa: getSecondaryText(prevState.main, prevState.secondary, prevState.secondaryCustom),
-              start_at: prevState.startedAt ? new Date(prevState.startedAt).toISOString('es-CO', { timeZone: 'America/Bogota', dateStyle: 'full', timeStyle: 'long' }) : null,
-              end_at: new Date(now).toISOString('es-CO', { timeZone: 'America/Bogota', dateStyle: 'full', timeStyle: 'long' }),
+              causa_custom: prevState.secondaryCustom ?? null,
+              start_at: prevState.startedAt ? new Date(prevState.startedAt).toISOString() : null,
+              end_at: new Date(now).toISOString(),
               elapsed_seconds: elapsedSeconds,
-              operador: imgStates[id].operador ?? null,
-              turno: imgStates[id].turno ?? null
+              MALAS: imgStates[id].operador ?? null,
+              TURNO: modal.turno ?? prevState.turno,
+              H_I: prevState.startedAt ? new Date(prevState.startedAt).getHours() : null,
+              M_I: prevState.startedAt ? new Date(prevState.startedAt).getMinutes() : null,
+              H_T: now ? new Date(now).getHours() : null,
+              M_T: now ? new Date(now).getMinutes() : null,
             }]);
           } catch (e) {
             console.error('Supabase insert error', e);
           }
         })();
+
+
+        // COD_T: 20 + mainId[id] ?? id,
+        //               COD_O: mainCode[prevState.main] ?? null,
+        //               estadoprincipal: mainLabels[prevState.main] ?? null,
+        //               causa: getSecondaryText(prevState.main, prevState.secondary, prevState.secondaryCustom),
+        //               start_at: prevState.startedAt ? new Date(prevState.startedAt).toISOString() : null,
+        //               end_at: new Date(now).toISOString(),
+        //               elapsed_seconds: elapsedSeconds,
+        // MALAS: imgStates[id].operador ?? null,
+        // TURNO: imgStates[id].turno ?? null,
+        // H_I: prevState ? prevState.getHours() : null,
+        // M_I: prevState ? prevState.getMinutes() : null,
+        // H_T: now.getHours(),
+        // M_T: now.getMinutes()
 
         return {
           ...prev,

@@ -78,7 +78,42 @@ const MapaModal = ({
                 {requiereOperador && (!modal.operador || (modal.askTurno && !modal.turno)) ? (
                     modal.operador && modal.askTurno && !modal.turno ? (
                         <div>
-                            <div className="mb-3" style={{ fontSize: 24, fontWeight: 'bold' }}>¿Cuál es tu turno?</div>
+
+                            <div className="d-flex flex-wrap justify-content-center my-3">
+                                {[
+                                    { mostrar: '6-2', interno: '1' },
+                                    { mostrar: '2-10', interno: '2' },
+                                    { mostrar: '10-6', interno: '3' },
+                                    { mostrar: '6-18', interno: '4' },
+                                    { mostrar: '18-6', interno: '5' }
+                                ].map(turno => (
+                                    <button
+                                        key={turno.mostrar}
+                                        type="button"
+                                        className="btn btn-outline-primary m-2"
+                                        style={{ fontSize: 22, padding: '12px 20px' }}
+                                        onClick={() => handleSeleccionarTurno(turno.interno)} // <-- Envía el valor interno
+                                    >
+                                        {turno.mostrar} {/* <-- Muestra el texto amigable */}
+                                    </button>
+                                ))}
+
+                                <button
+                                    type="button"
+                                    className="btn btn-outline-secondary m-2"
+                                    style={{ fontSize: 22, padding: '12px 20px' }}
+                                    onClick={() => {
+                                        const custom = window.prompt('Escribe tu turno:');
+                                        // En el caso de "Otro", puedes enviar el texto directo o procesarlo si es necesario
+                                        if (custom && custom.trim()) handleSeleccionarTurno(custom.trim());
+                                    }}
+                                >
+                                    Otro
+                                </button>
+                            </div>
+
+
+                            {/* <div className="mb-3" style={{ fontSize: 24, fontWeight: 'bold' }}>¿Cuál es tu turno?</div>
                             <p style={{ color: '#666', fontSize: 16 }}>Selecciona el turno correspondiente:</p>
                             <div className="d-flex flex-wrap justify-content-center my-3">
                                 {['6-2', '2-10', '10-6', "6-18", "18-6"].map(t => (
@@ -97,7 +132,7 @@ const MapaModal = ({
                                 <button type="button" className="btn btn-link mt-2" style={{ fontSize: 20 }} onClick={onClose}>
                                     Cancelar
                                 </button>
-                            </div>
+                            </div> */}
                         </div>
                     ) : (
                         <div>

@@ -39,20 +39,26 @@ const MapaModal = ({
         console.warn('checkOperarioAsked not provided; defaulting to ask turno.');
         return false;
     };
-    const markOperarioAskedToday = (nombre) => {
+    const markOperarioAskedToday = (nombre, turno) => {
         if (typeof markOperarioAsked === 'function') {
-            try { return markOperarioAsked(nombre); } catch (e) { console.warn(e); }
+            try { return markOperarioAsked(nombre, turno); } catch (e) { console.warn(e); }
         } else {
             console.warn('markOperarioAsked not provided; no cross-terminal persistence.');
         }
     };
 
+    // const getSecondaryOptions = () => {
+    //     if (modal.main === 4 || modal.main === 7) return [];
+    //     if (modal.main && secondaryOptionsMap[modal.main]) {
+    //         return secondaryOptionsMap[modal.main];
+    //     }
+    //     return [];
+    // };
+
     const getSecondaryOptions = () => {
-        if (modal.main === 4 || modal.main === 7) return [];
-        if (modal.main && secondaryOptionsMap[modal.main]) {
-            return secondaryOptionsMap[modal.main];
-        }
-        return [];
+        const selectedMain = mainOptions.find(opt => opt.main === modal.main);
+        if (!selectedMain || selectedMain.hasSecondary === false) return [];
+        return secondaryOptionsMap[modal.main] || [];
     };
 
     const handleSeleccionarOperador = (nombre) => {
@@ -64,7 +70,7 @@ const MapaModal = ({
         const operador = modal && modal.operador;
         setModal(prev => ({ ...prev, turno, askTurno: false }));
         if (operador) {
-            markOperarioAskedToday(operador);
+            markOperarioAskedToday(operador, turno);
         }
     };
 

@@ -29,5 +29,8 @@ export const secondaryOptionsMap = {
     6: [
         "Cambio de talla", "Cambio de referencia", "Desprogramada"
     ],
-    7: []
+    7: [],
+    9: [
+        "Aguja -10", "Aguja +10"
+    ]
 };

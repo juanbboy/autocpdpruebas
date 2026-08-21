@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { set, ref as rtdbRef, onValue } from 'firebase/database';
+import { get, set, remove, ref as rtdbRef, onValue } from 'firebase/database';
 import useFirebaseSync from '../../hooks/useFirebaseSync';
 import useMachineTimers from '../../hooks/useMachineTimers';
 import { supabase } from '../pruebas/client';
@@ -92,6 +92,10 @@ const Mapa = () => {
     };
   }, []);
 
+  useEffect(() => {
+    limpiarMarkOperarioAsked();
+  }, []);
+
   // Comprueba si un operario ya fue preguntado hoy (lookup en caché)
   const checkOperarioAsked = (nombre) => {
     return Boolean(askedOperarios && askedOperarios[nombre]);
@@ -102,13 +106,25 @@ const Mapa = () => {
     try {
       const today = new Date().toISOString().slice(0, 10);
       const pathRef = rtdbRef(dbi, `askedOperarios/${today}/${nombre}`);
-      set(pathRef, { ts: Date.now(), turno: turno ?? null });
+      set(pathRef, { ts: Date.now(), turno: turno });
     } catch (e) {
       console.error('markOperarioAsked error', e);
     }
   };
 
+  const limpiarMarkOperarioAsked = async () => {
+    const askedRef = rtdbRef(dbi, 'askedOperarios');
+    const snapshot = await get(askedRef);
 
+    const data = snapshot.val() || {};
+    const hoy = new Date().toISOString().slice(0, 10);
+
+    for (const fecha in data) {
+      if (fecha !== hoy) {
+        await remove(rtdbRef(dbi, `askedOperarios/${fecha}`));
+      }
+    }
+  };
 
   function getSecondaryText(main, secondary, secondaryCustom) {
     if (main == null || secondary == null) return null;
@@ -156,12 +172,21 @@ const Mapa = () => {
     return secondaryOptionsMap[modal.main] || [];
   }
 
+  const getOperarioTurno = (nombre) => {
+    if (!nombre) return null;
+    const turnoFirebase = askedOperarios?.[nombre]?.turno;
+    if (turnoFirebase != null && turnoFirebase !== '') {
+      return turnoFirebase;
+    }
+    return modal.turno ?? null;
+  };
+
   const closeModal = () => setModal({ show: false, target: null, main: null });
   const backToMainModal = () => setModal(prev => ({ ...prev, main: null, show: true }));
 
   // Maneja la selección de una opción principal en el modal
   function handleMainOption(main) {
-    console.log(new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota', dateStyle: 'full', timeStyle: 'long' }),);
+    const selectedMain = mainOptions.find(opt => opt.main === main);
 
     if ((main === 4 || main === 7) && modal.target) {
       const id = modal.target.getAttribute('data-id');
@@ -171,7 +196,7 @@ const Mapa = () => {
         const prevState = prev[id] || {};
         const now = Date.now();
         const elapsedSeconds = prevState.startedAt ? Math.round((now - prevState.startedAt) / 1000) : prevState.lastElapsedSeconds || 0;
-
+        const turno = getOperarioTurno(imgStates[id].operador);
         // Insert a record into Supabase for this machine stop
         (async () => {
           try {
@@ -185,7 +210,7 @@ const Mapa = () => {
               end_at: new Date(now).toISOString(),
               elapsed_seconds: elapsedSeconds,
               MALAS: imgStates[id].operador ?? null,
-              TURNO: modal.turno ?? prevState.turno,
+              TURNO: turno,
               H_I: prevState.startedAt ? new Date(prevState.startedAt).getHours() : null,
               M_I: prevState.startedAt ? new Date(prevState.startedAt).getMinutes() : null,
               H_T: now ? new Date(now).getHours() : null,
@@ -219,6 +244,7 @@ const Mapa = () => {
             main,
           }
         }
+
       });
       // fcmSendNotification(
       //   `Máquina ${id}`,
@@ -228,8 +254,17 @@ const Mapa = () => {
       setModal({ show: false, target: null, main: null });
       return;
     }
-    setModal((prev) => ({ ...prev, main }));
+    if (selectedMain && selectedMain.hasSecondary === false) {
+      if (!modal.target) {
+        setModal(prev => ({ ...prev, main }));
+        return;
+      }
+    }
+    // setModal((prev) => ({ ...prev, main, }));
   }
+
+
+
   // Maneja la selección de una subopción (incluye opción personalizada "Otros")
   function handleSecondaryOption(secondaryIdx, customText) {
     if (!modal.target || !modal.main) return;

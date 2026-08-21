@@ -1,16 +1,17 @@
 export const mainOptions = [
-    { label: "Mecánico", main: 1, className: "btn btn-danger" },
-    { label: "Barrado", main: 2, className: "btn btn-dark" },
-    { label: "Electrónico", main: 3, className: "btn btn-warning" },
-    { label: "Tallaje", main: 6, className: "btn btn-primary" },
-    { label: "Seguimiento", main: 5, className: "btn btn-info" },
-    { label: "Inicio Producción", main: 4, className: "btn btn-success" },
-    { label: "Fin Producción", main: 7, className: "btn btn-light" },
-    { label: "Cambio de talla", main: 8, className: "btn btn-light" },
-    { label: "Daño de agujas", main: 9, className: "btn btn-light" },
-    { label: "Falta de mecanico", main: 10, className: "btn btn-light" },
-    { label: "Mantenimiento correctivo", main: 11, className: "btn btn-light" },
-    { label: "Ajuste de calidad", main: 12, className: "btn btn-light" }
+    { label: "Mecánico", main: 1, code: "I06", className: "btn btn-danger", hasSecondary: true },
+    { label: "Barrado", main: 2, code: "I05", className: "btn btn-dark", hasSecondary: true },
+    { label: "Electrónico", main: 3, code: "I26", className: "btn btn-warning", hasSecondary: true },
+    { label: "Tallaje", main: 6, code: "I11", className: "btn btn-primary", hasSecondary: true },
+    { label: "Seguimiento", main: 5, code: "I55", className: "btn btn-info", hasSecondary: true },
+    { label: "Inicio Producción", main: 4, code: "I29", className: "btn btn-success", hasSecondary: false },
+    { label: "Fin Producción", main: 7, code: "I30", className: "btn btn-light", hasSecondary: false },
+    // { label: "Cambio de talla", main: 8, code: "DI01", className: "btn btn-light",hasSecondary: false },
+    { label: "Daño de agujas", main: 9, code: "DI02", className: "btn btn-light", hasSecondary: true },
+    { label: "Falta de mecanico", main: 10, code: "DI117", className: "btn btn-light", hasSecondary: false },
+    { label: "Mantenimiento correctivo", main: 11, code: "DI11", className: "btn btn-light", hasSecondary: false },
+    { label: "Ajuste de calidad", main: 12, code: "I16", className: "btn btn-light", hasSecondary: false },
+    { label: "Mantenimiento Preventivo", main: 13, code: "DI13", className: "btn btn-light", hasSecondary: false }
 ];
 
 export const mainLabels = {
@@ -21,7 +22,7 @@ export const mainLabels = {
     5: "Seguimiento",
     6: "Cambio de refencia",
     7: "Fin Produccion",
-    8: "Cambio de talla",
+    // 8: "Cambio de talla",
     9: "Daño de agujas",
     10: "Falta de mecanico",
     11: "Mantenimiento correctivo",
@@ -36,7 +37,7 @@ export const mainCode = {
     5: "I55",
     6: "I11",
     7: "I30",
-    8: "DI01",
+    // 8: "DI01",
     9: "DI02",
     10: "DI117",
     11: "DI11",
@@ -104,5 +105,7 @@ export const mainId = {
     74: "2074",
     75: "2075",
     76: "2076",
+
 };
+
 

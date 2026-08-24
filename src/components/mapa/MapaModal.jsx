@@ -47,19 +47,18 @@ const MapaModal = ({
         }
     };
 
-    // const getSecondaryOptions = () => {
-    //     if (modal.main === 4 || modal.main === 7) return [];
-    //     if (modal.main && secondaryOptionsMap[modal.main]) {
-    //         return secondaryOptionsMap[modal.main];
-    //     }
-    //     return [];
-    // };
-
     const getSecondaryOptions = () => {
-        const selectedMain = mainOptions.find(opt => opt.main === modal.main);
-        if (!selectedMain || selectedMain.hasSecondary === false) return [];
-        return secondaryOptionsMap[modal.main] || [];
+        if (modal.main && secondaryOptionsMap[modal.main]) {
+            return secondaryOptionsMap[modal.main];
+        }
+        return (handleSecondaryOption(null, modal.operador));
     };
+
+    // const getSecondaryOptions = () => {
+    //     const selectedMain = mainOptions.find(opt => opt.main === modal.main);
+    //     if (selectedMain.hasSecondary === false) return [];
+    //     return secondaryOptionsMap[modal.main];
+    // };
 
     const handleSeleccionarOperador = (nombre) => {
         const alreadyAsked = isOperarioAskedToday(nombre);
@@ -206,22 +205,23 @@ const MapaModal = ({
                                 ) : (
                                     <div>
                                         <div className="mb-3" style={{ fontSize: 24 }}>Seleccione una causa</div>
-                                        {getSecondaryOptions().map((label, idx) => (
-                                            label === 'Otros' ? (
-                                                <button key={label} className="btn btn-outline-secondary m-2" style={{ fontSize: 28, padding: '16px 32px' }} onClick={() => {
-                                                    const custom = window.prompt('Escribe la causa personalizada:');
-                                                    if (custom && custom.trim().length > 0) {
-                                                        handleSecondaryOption(idx, custom.trim(), modal.operador);
-                                                    }
-                                                }}>
-                                                    Otros
-                                                </button>
-                                            ) : (
-                                                <button key={label} className="btn btn-outline-secondary m-2" style={{ fontSize: 28, padding: '16px 32px' }} onClick={() => handleSecondaryOption(idx, undefined, modal.operador)}>
-                                                    {label}
-                                                </button>
-                                            )
-                                        ))}
+                                        {
+                                            getSecondaryOptions().map((label, idx) => (
+                                                label === 'Otros' ? (
+                                                    <button key={label} className="btn btn-outline-secondary m-2" style={{ fontSize: 28, padding: '16px 32px' }} onClick={() => {
+                                                        const custom = window.prompt('Escribe la causa personalizada:');
+                                                        if (custom && custom.trim().length > 0) {
+                                                            handleSecondaryOption(idx, custom.trim(), modal.operador);
+                                                        }
+                                                    }}>
+                                                        Otros
+                                                    </button>
+                                                ) : (
+                                                    <button key={label} className="btn btn-outline-secondary m-2" style={{ fontSize: 28, padding: '16px 32px' }} onClick={() => handleSecondaryOption(idx, undefined, modal.operador)}>
+                                                        {label}
+                                                    </button>
+                                                )
+                                            ))}
                                     </div>
                                 )}
                                 <div>

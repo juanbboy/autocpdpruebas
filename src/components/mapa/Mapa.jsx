@@ -254,13 +254,7 @@ const Mapa = () => {
       setModal({ show: false, target: null, main: null });
       return;
     }
-    if (selectedMain && selectedMain.hasSecondary === false) {
-      if (!modal.target) {
-        setModal(prev => ({ ...prev, main }));
-        return;
-      }
-    }
-    // setModal((prev) => ({ ...prev, main, }));
+    setModal((prev) => ({ ...prev, main }));
   }
 
 

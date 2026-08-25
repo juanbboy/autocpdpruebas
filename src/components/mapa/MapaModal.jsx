@@ -51,7 +51,7 @@ const MapaModal = ({
         if (modal.main && secondaryOptionsMap[modal.main]) {
             return secondaryOptionsMap[modal.main];
         }
-        return (handleSecondaryOption(null, modal.operador));
+        return [];
     };
 
     // const getSecondaryOptions = () => {

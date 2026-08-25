@@ -147,17 +147,33 @@ const Mapa = () => {
   // Devuelve la etiqueta de la subopción seleccionada para una máquina
   function getSecondaryLabel(id) {
     const val = imgStates[id];
-    if (!val || typeof val !== "object" || val.secondary == null || val.main == null) {
+
+    if (!val || typeof val !== "object" || val.main == null) {
       return "";
     }
+
+    // No mostrar texto de inicio/fin de producción si no hay causa secundaria
+    if (val.main === 4 || val.main === 7) {
+      return "";
+    }
+
+    const mainLabel = mainLabels[val.main] || "";
+
+    if (val.secondary == null) {
+      return mainLabel;
+    }
+
     const opts = secondaryOptionsMap[val.main] || [];
     if (opts[val.secondary] === "Otros" && val.secondaryCustom) {
       return val.secondaryCustom;
     }
-    const label = opts[val.secondary] || "";
+
+    const label = opts[val.secondary] || mainLabel;
+
     if (label.length > 18) {
       return label.slice(0, 15) + "...";
     }
+
     return label;
   }
   // Devuelve la imagen correspondiente al estado de la máquina
@@ -186,11 +202,12 @@ const Mapa = () => {
 
   // Maneja la selección de una opción principal en el modal
   function handleMainOption(main) {
-    const selectedMain = mainOptions.find(opt => opt.main === main);
+    // const selectedMain = mainOptions.find(opt => opt.main === main);
+    const id = modal.target.getAttribute('data-id');
+    const options = secondaryOptionsMap[main] || [];
+    let src = getSrc(id);
 
     if ((main === 4 || main === 7) && modal.target) {
-      const id = modal.target.getAttribute('data-id');
-      let src = getSrc(id);
       // Prepare insertion data before updating state
       setImgStates(prev => {
         const prevState = prev[id] || {};
@@ -220,22 +237,6 @@ const Mapa = () => {
             console.error('Supabase insert error', e);
           }
         })();
-
-
-        // COD_T: 20 + mainId[id] ?? id,
-        //               COD_O: mainCode[prevState.main] ?? null,
-        //               estadoprincipal: mainLabels[prevState.main] ?? null,
-        //               causa: getSecondaryText(prevState.main, prevState.secondary, prevState.secondaryCustom),
-        //               start_at: prevState.startedAt ? new Date(prevState.startedAt).toISOString() : null,
-        //               end_at: new Date(now).toISOString(),
-        //               elapsed_seconds: elapsedSeconds,
-        // MALAS: imgStates[id].operador ?? null,
-        // TURNO: imgStates[id].turno ?? null,
-        // H_I: prevState ? prevState.getHours() : null,
-        // M_I: prevState ? prevState.getMinutes() : null,
-        // H_T: now.getHours(),
-        // M_T: now.getMinutes()
-
         return {
           ...prev,
           [id]: {
@@ -254,6 +255,35 @@ const Mapa = () => {
       setModal({ show: false, target: null, main: null });
       return;
     }
+
+    if (options.length === 0) {
+      const src = getSrc(id);
+
+      setImgStates(prev => {
+        const prevState = prev[id] || {};
+        const now = Date.now();
+
+        return {
+          ...prev,
+          [id]: {
+            src,
+            secondary: null,
+            main,
+            secondaryCustom: undefined,
+            startedAt: prevState.startedAt || now,
+            operador: modal.operador ?? prevState.operador,
+            turno: modal.turno ?? prevState.turno
+          }
+        };
+      });
+
+      setTimeout(() => {
+        setModal({ show: false, target: null, main: null });
+      }, 0);
+
+      return;
+    }
+
     setModal((prev) => ({ ...prev, main }));
   }
 

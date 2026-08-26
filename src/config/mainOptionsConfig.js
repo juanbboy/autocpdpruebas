@@ -1,17 +1,20 @@
 export const mainOptions = [
     { label: "Mecánico", main: 1, code: "I06", className: "btn btn-danger", hasSecondary: true },
-    { label: "Barrado", main: 2, code: "I05", className: "btn btn-dark", hasSecondary: true },
+    { label: "Materia Prima", main: 2, code: "", className: "btn btn-dark", hasSecondary: true },
     { label: "Electrónico", main: 3, code: "I26", className: "btn btn-warning", hasSecondary: true },
     { label: "Tallaje", main: 6, code: "I11", className: "btn btn-primary", hasSecondary: true },
-    { label: "Seguimiento", main: 5, code: "I55", className: "btn btn-info", hasSecondary: true },
+    // { label: "Seguimiento", main: 5, code: "I55", className: "btn btn-info", hasSecondary: true },
     { label: "Inicio Producción", main: 4, code: "I29", className: "btn btn-success", hasSecondary: false },
     { label: "Fin Producción", main: 7, code: "I30", className: "btn btn-light", hasSecondary: false },
-    // { label: "Cambio de talla", main: 8, code: "DI01", className: "btn btn-light",hasSecondary: false },
     { label: "Daño de agujas", main: 9, code: "DI02", className: "btn btn-light", hasSecondary: true },
-    { label: "Falta de mecanico", main: 10, code: "DI117", className: "btn btn-light", hasSecondary: false },
     { label: "Mantenimiento correctivo", main: 11, code: "DI11", className: "btn btn-light", hasSecondary: false },
-    { label: "Ajuste de calidad", main: 12, code: "I16", className: "btn btn-light", hasSecondary: false },
-    { label: "Mantenimiento Preventivo", main: 13, code: "DI13", className: "btn btn-light", hasSecondary: false }
+    { label: "Daño de cuchillas", main: 14, code: "DI03", className: "btn btn-light", hasSecondary: false },
+    { label: "Alistamiento", main: 15, code: "DI07", className: "btn btn-light", hasSecondary: false },
+    { label: "Operativo", main: 16, code: "", className: "btn btn-light", hasSecondary: true },
+    { label: "Falta de energia", main: 8, code: "I04", className: "btn btn-light", hasSecondary: false },
+    { label: "Falta de aire", main: 13, code: "I12", className: "btn btn-light", hasSecondary: false },
+    { label: "Muestras", main: 10, code: "I09", className: "btn btn-light", hasSecondary: false },
+
 ];
 
 export const mainLabels = {

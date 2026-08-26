@@ -6,18 +6,27 @@
 
 export const secondaryOptionsMap = {
     1: [
-        "Transferencia", "Vanizado", "Reviente LC", "Succion", "Reviente L180", "Piques",
-        "Huecos y rotos", "Aguja", "Selectores", "Motores MPP", "Cuchillas", "correa",
+        { label: "Selectores", code: "DI04" },
+        { label: "Ajuste calidad", code: "DI06" },
+        { label: "Mant. correctivo", code: "DI18" },
+        { label: "Mant. preventivo", code: "I14" },
+        { label: "Limpieza", code: "I10" },
+
+        "Transferencia", "Reviente LC", "Succion", "Reviente L180", "Piques",
+        "Huecos y rotos", "Aguja", "Motores MPP", "Cuchillas", "correa",
         "Manguera rota", "Lubricacion", "Guia hilos", "Otros", "Limpieza", "Trasdenuto", "Escaricato"
     ],
     2: [
-        "Licra", "Nylon", "Motores", "Sin programa"
+
+        { label: "Barrado", code: "I05" },
+        { label: "Falta de materia prima", code: "I03" },
+        { label: "Cambio de hilaza", code: "DI11" }
     ],
-    3: [
-        "Valvulas", "Motores MPP", "No enciende", "Turbina", "Motor principal", "Sensores",
-        "Paros", "Sin programa", "Fusible", "Guia hilos", "Corto circuito", "Carga no conectada",
-        "bloqueo", "Sensor Lubricacion", "Otros", "Motor LGL", "Trasdenuto", "Escaricato"
-    ],
+    // 3: [
+    //     "Valvulas", "Motores MPP", "No enciende", "Turbina", "Motor principal", "Sensores",
+    //     "Paros", "Sin programa", "Fusible", "Guia hilos", "Corto circuito", "Carga no conectada",
+    //     "bloqueo", "Sensor Lubricacion", "Otros", "Motor LGL", "Trasdenuto", "Escaricato"
+    // ],
     4: [],
     5: [
         "Transferencia", "Vanizado", "Reviente LC", "Succion", "Reviente L180", "Piques",
@@ -27,10 +36,23 @@ export const secondaryOptionsMap = {
         "Lubricacion", "Guia hilos", "Otros", "Motor LGL", "Limpieza", "Trasdenuto", "Escaricato"
     ],
     6: [
-        "Cambio de talla", "Cambio de referencia", "Desprogramada"
+        { label: "Cambio de talla", code: "DI01" },
+        { label: "Cambio de referencia", code: "I11" },
+        { label: "Desprogramada", code: "DI09" },
+        { label: "Ajuste de calidad", code: "I16" },
+        { label: "Reuniones", code: "I17" },
+        { label: "Inventario", code: "I19" },
+        { label: "Pausas activas", code: "I20" },
+        { label: "Capacitaciónes", code: "I22" },
     ],
     7: [],
     9: [
         "Aguja -10", "Aguja +10"
+    ],
+    16: [
+        { label: "Inasistencia ", code: "DI19" },
+        { label: "Falta de mecanico", code: "DI117" },
+        { label: "Falta de operario", code: "DI117" },
+        { label: "Comida", code: "I08" }
     ]
 };

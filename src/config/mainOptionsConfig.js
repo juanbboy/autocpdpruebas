@@ -1,52 +1,19 @@
 export const mainOptions = [
-    { label: "Mecánico", main: 1, code: "I06", className: "btn btn-danger", hasSecondary: true },
-    { label: "Materia Prima", main: 2, code: "", className: "btn btn-dark", hasSecondary: true },
+    { label: "Mecánico", main: 1, code: "I06", className: "btn btn-warning", hasSecondary: true },
     { label: "Electrónico", main: 3, code: "I26", className: "btn btn-warning", hasSecondary: true },
-    { label: "Tallaje", main: 6, code: "I11", className: "btn btn-primary", hasSecondary: true },
+    { label: "Falta de energia", main: 8, code: "I04", className: "btn btn-warning", hasSecondary: false },
+    { label: "Falta de aire", main: 13, code: "I12", className: "btn btn-warning", hasSecondary: false },
+    { label: "Ajust. cambio ref", main: 11, code: "I30", className: "btn btn-warning", hasSecondary: false },
+    { label: "Muestras", main: 10, code: "I09", className: "btn btn-warning", hasSecondary: false },
+    { label: "Materia Prima", main: 2, code: "", className: "btn btn-info", hasSecondary: true },
+    { label: "Tallaje", main: 6, code: "I11", className: "btn btn-dark", hasSecondary: true },
     // { label: "Seguimiento", main: 5, code: "I55", className: "btn btn-info", hasSecondary: true },
+    { label: "Daño de agujas", main: 9, code: "DI02", className: "btn btn-danger", hasSecondary: true },
+    { label: "Operativo", main: 16, code: "", className: "btn btn-primary", hasSecondary: true },
+    { label: "Alistamiento", main: 15, code: "DI07", className: "btn btn-success", hasSecondary: false },
     { label: "Inicio Producción", main: 4, code: "I29", className: "btn btn-success", hasSecondary: false },
-    { label: "Fin Producción", main: 7, code: "I30", className: "btn btn-light", hasSecondary: false },
-    { label: "Daño de agujas", main: 9, code: "DI02", className: "btn btn-light", hasSecondary: true },
-    { label: "Mantenimiento correctivo", main: 11, code: "DI11", className: "btn btn-light", hasSecondary: false },
-    { label: "Daño de cuchillas", main: 14, code: "DI03", className: "btn btn-light", hasSecondary: false },
-    { label: "Alistamiento", main: 15, code: "DI07", className: "btn btn-light", hasSecondary: false },
-    { label: "Operativo", main: 16, code: "", className: "btn btn-light", hasSecondary: true },
-    { label: "Falta de energia", main: 8, code: "I04", className: "btn btn-light", hasSecondary: false },
-    { label: "Falta de aire", main: 13, code: "I12", className: "btn btn-light", hasSecondary: false },
-    { label: "Muestras", main: 10, code: "I09", className: "btn btn-light", hasSecondary: false },
-
+    { label: "Fin Producción", main: 7, code: "I30", className: "btn btn-outline-dark", hasSecondary: false },
 ];
-
-export const mainLabels = {
-    1: "Mecanico",
-    2: "Barrado",
-    3: "Electronico",
-    4: "Inicio Produccion",
-    5: "Seguimiento",
-    6: "Cambio de refencia",
-    7: "Fin Produccion",
-    // 8: "Cambio de talla",
-    9: "Daño de agujas",
-    10: "Falta de mecanico",
-    11: "Mantenimiento correctivo",
-    12: "Ajuste de calidad"
-};
-
-export const mainCode = {
-    1: "I06",
-    2: "I05",
-    3: "I26",
-    4: "I29",
-    5: "I55",
-    6: "I11",
-    7: "I30",
-    // 8: "DI01",
-    9: "DI02",
-    10: "DI117",
-    11: "DI11",
-    12: "I16",
-
-};
 
 export const mainId = {
     "S1": "2001",

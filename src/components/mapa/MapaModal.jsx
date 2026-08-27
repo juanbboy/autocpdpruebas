@@ -181,7 +181,11 @@ const MapaModal = ({
                                         const opts = secondaryOptionsMap[mainIdx] || [];
                                         return (
                                             <div style={{ marginBottom: 16, fontSize: 22, color: '#007bff' }}>
-                                                Maquina en revision por: <b>{opts[secondaryIdx]}</b>
+                                                Maquina en revision por: <b>
+                                                    {typeof opts[secondaryIdx] === "object"
+                                                        ? opts[secondaryIdx].label
+                                                        : opts[secondaryIdx]}
+                                                </b>
                                             </div>
                                         );
                                     }
@@ -206,8 +210,9 @@ const MapaModal = ({
                                     <div>
                                         <div className="mb-3" style={{ fontSize: 24 }}>Seleccione una causa</div>
                                         {
-                                            getSecondaryOptions().map((label, idx) => (
-                                                label === 'Otros' ? (
+                                            getSecondaryOptions().map((option, idx) => {
+                                                const label = typeof option === "object" ? option.label : option;
+                                                return label === 'Otros' ? (
                                                     <button key={label} className="btn btn-outline-secondary m-2" style={{ fontSize: 28, padding: '16px 32px' }} onClick={() => {
                                                         const custom = window.prompt('Escribe la causa personalizada:');
                                                         if (custom && custom.trim().length > 0) {
@@ -221,7 +226,7 @@ const MapaModal = ({
                                                         {label}
                                                     </button>
                                                 )
-                                            ))}
+                                            })}
                                     </div>
                                 )}
                                 <div>

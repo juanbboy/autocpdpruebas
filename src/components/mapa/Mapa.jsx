@@ -246,7 +246,7 @@ const Mapa = () => {
             await supabase.from('historial_pruebas').insert([{
               COD_T: mainId[id] ?? id,
               COD_O: getEffectiveCode(prevState.main, prevState.secondary),
-              estadoprincipal: mainOptions.find(opt => opt.main === prevState.main) ?? null,
+              estadoprincipal: mainOptions.find(option => option.main === prevState.main)?.label ?? null,
               causa: getSecondaryText(prevState.main, prevState.secondary, prevState.secondaryCustom),
               causa_custom: prevState.secondaryCustom ?? null,
               start_at: prevState.startedAt ? new Date(prevState.startedAt).toISOString() : null,
@@ -380,15 +380,15 @@ const Mapa = () => {
         >
           {[
             // Solo IDs únicos para móvil, sin repetición de máquinas
-            "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16", "S17", "S18", "S19",
-            "26", "28", "30", "31", "32", "33", "34", "35", "36", "38", "39", "40", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "64", "65", "66", "67", "69", "70", "71", "72", "73", "74", "75", "76"
+            "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16", "S17", "S18", "S19", "S20", "S21", "S22", "S23",
+            "28", "30", "33", "34", "35", "36", "38", "39", "43", "44", "46", "48", "49", "50", "51", "52", "54", "55", "56", "57", "58", "64", "65", "66", "67", "69", "70", "71", "72", "73", "74", "75", "76"
           ].map(id => (
             <div key={id} style={{ marginBottom: 2, width: 90, textAlign: "center" }}>
               <input
                 type="image"
                 onClick={img}
                 src={getSrc(id)}
-                width={["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16", "S17", "S18", "S19"].includes(id) ? 90 : 60}
+                width={["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16", "S17", "S18", "S19", "S20", "S21", "S22", "S23"].includes(id) ? 90 : 60}
                 alt={id}
                 data-id={id}
                 style={{

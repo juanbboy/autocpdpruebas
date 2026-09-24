@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './machineReferencesAdmin.css';
 import {
-    fetchReferencesFromSupabase,
-    saveMachineReferences,
-    saveReferenceToSupabase,
-    saveAllReferencesToSupabase
+    subscribeMachineReferences,
+    saveMachineReference,
+    deleteMachineReference
 } from '../../config/machineReferencesConfig';
 
 const MachineReferencesAdmin = ({ onClose, isOpen }) => {
@@ -15,105 +14,70 @@ const MachineReferencesAdmin = ({ onClose, isOpen }) => {
     const [editingRef, setEditingRef] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
 
-    // Cargar referencias desde Supabase (o fallback a localStorage)
     useEffect(() => {
-        let mounted = true;
-        async function load() {
-            try {
-                const refs = await fetchReferencesFromSupabase();
-                if (mounted && refs) {
-                    setMachines(refs);
-                    return;
-                }
-            } catch (e) {
-                console.error('Error fetching refs from Supabase:', e);
-            }
-            // fallback a localStorage
-            const stored = localStorage.getItem('machineReferences');
-            if (stored) {
-                try {
-                    if (mounted) setMachines(JSON.parse(stored));
-                } catch (e) {
-                    console.error('Error loading references:', e);
-                }
-            }
-        }
-        if (isOpen) load();
-        return () => { mounted = false; };
+        if (!isOpen) return undefined;
+
+        const unsubscribe = subscribeMachineReferences((references) => {
+            setMachines(references);
+        });
+
+        return unsubscribe;
     }, [isOpen]);
 
-    // Guardar referencias localmente y en Supabase (best-effort)
-    const saveMachines = (updated) => {
+    const saveMachines = async (updated) => {
         setMachines(updated);
-        saveMachineReferences(updated);
-        // persistir en Supabase en segundo plano
-        (async () => {
-            try {
-                await saveAllReferencesToSupabase(updated);
-            } catch (e) {
-                console.error('Error saving machines to Supabase:', e);
-            }
-        })();
-    };
 
-    // Agregar nueva máquina
-    const handleAddMachine = () => {
-        if (newMachineId.trim() && newMachineRef.trim()) {
-            const updated = {
-                ...machines,
-                [newMachineId]: newMachineRef
-            };
-            saveMachines(updated);
-            // upsert individual immediately
-            (async () => {
-                try {
-                    await saveReferenceToSupabase(newMachineId, newMachineRef);
-                } catch (e) {
-                    console.error('Error saving new reference to Supabase:', e);
-                }
-            })();
-            setNewMachineId('');
-            setNewMachineRef('');
+        try {
+            await Promise.all(
+                Object.entries(updated).map(([machineId, reference]) =>
+                    saveMachineReference(machineId, reference)
+                )
+            );
+        } catch (error) {
+            console.error('Error saving machine references:', error);
         }
     };
 
-    // Actualizar referencia existente
-    const handleUpdateReference = (machineId) => {
-        if (editingRef.trim()) {
-            const updated = {
-                ...machines,
-                [machineId]: editingRef
-            };
-            saveMachines(updated);
-            (async () => {
-                try {
-                    await saveReferenceToSupabase(machineId, editingRef);
-                } catch (e) {
-                    console.error('Error updating reference to Supabase:', e);
-                }
-            })();
-            setEditingId(null);
-            setEditingRef('');
+    const handleAddMachine = async () => {
+        const machineId = newMachineId.trim();
+        const machineReference = newMachineRef.trim();
+
+        if (!machineId || !machineReference) return;
+
+        const updated = {
+            ...machines,
+            [machineId]: machineReference
+        };
+
+        await saveMachines(updated);
+        setNewMachineId('');
+        setNewMachineRef('');
+    };
+
+    const handleUpdateReference = async (machineId) => {
+        const reference = editingRef.trim();
+        if (!reference) return;
+
+        const updated = {
+            ...machines,
+            [machineId]: reference
+        };
+
+        await saveMachines(updated);
+        setEditingId(null);
+        setEditingRef('');
+    };
+
+    const handleDeleteMachine = async (machineId) => {
+        if (!window.confirm(`¿Eliminar máquina ${machineId}?`)) return;
+
+        try {
+            await deleteMachineReference(machineId);
+        } catch (error) {
+            console.error('Error deleting machine reference:', error);
         }
     };
 
-    // Eliminar máquina
-    const handleDeleteMachine = (machineId) => {
-        if (window.confirm(`¿Eliminar máquina ${machineId}?`)) {
-            const updated = { ...machines };
-            delete updated[machineId];
-            saveMachines(updated);
-            (async () => {
-                try {
-                    await saveReferenceToSupabase(machineId, '');
-                } catch (e) {
-                    console.error('Error deleting reference from Supabase:', e);
-                }
-            })();
-        }
-    };
-
-    // Filtrar máquinas por búsqueda
     const filteredMachines = Object.entries(machines).filter(([id, ref]) =>
         id.toLowerCase().includes(searchTerm.toLowerCase()) ||
         ref.toLowerCase().includes(searchTerm.toLowerCase())
@@ -130,7 +94,6 @@ const MachineReferencesAdmin = ({ onClose, isOpen }) => {
                 </div>
 
                 <div className="machine-admin-body">
-                    {/* Formulario para agregar nueva máquina */}
                     <div className="add-machine-section">
                         <h3>Agregar Nueva Máquina</h3>
                         <div className="form-group">
@@ -154,7 +117,6 @@ const MachineReferencesAdmin = ({ onClose, isOpen }) => {
                         </div>
                     </div>
 
-                    {/* Buscador */}
                     <div className="search-section">
                         <input
                             type="text"
@@ -165,7 +127,6 @@ const MachineReferencesAdmin = ({ onClose, isOpen }) => {
                         />
                     </div>
 
-                    {/* Lista de máquinas */}
                     <div className="machines-list">
                         <h3>Máquinas Registradas ({filteredMachines.length})</h3>
                         {filteredMachines.length === 0 ? (
